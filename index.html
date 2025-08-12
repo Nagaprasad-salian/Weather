@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Weather App</title>
+<style>
+    /* Animated gradient background */
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(270deg, #74ABE2, #5563DE, #FFB830);
+        background-size: 600% 600%;
+        animation: gradientBG 12s ease infinite;
+        color: #fff;
+        overflow: hidden;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        animation: fadeIn 1.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Search Box */
+    .search-box {
+        display: flex;
+        gap: 10px;
+        animation: fadeInUp 1.2s ease;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    input {
+        padding: 12px;
+        border-radius: 25px;
+        border: none;
+        outline: none;
+        width: 250px;
+        font-size: 16px;
+        transition: 0.3s;
+        box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    input:focus {
+        box-shadow: 0 0 20px rgba(255,255,255,0.6);
+    }
+
+    /* Button with ripple effect */
+    button {
+        position: relative;
+        padding: 12px 25px;
+        border-radius: 25px;
+        border: none;
+        background-color: #FFB830;
+        color: #333;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        overflow: hidden;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #FFD56B;
+    }
+
+    button:active::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300%;
+        height: 300%;
+        background: rgba(255,255,255,0.4);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: ripple 0.6s linear;
+    }
+
+    @keyframes ripple {
+        from { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+        to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+
+    /* Weather Card */
+    .weather-card {
+        background-color: rgba(255,255,255,0.15);
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 20px;
+        width: 300px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        animation: fadeIn 1s ease;
+    }
+
+    .temp {
+        font-size: 48px;
+        margin: 10px 0;
+    }
+
+    .details {
+        text-align: left;
+    }
+
+    /* Initial illustration */
+    .placeholder {
+        margin-top: 40px;
+        text-align: center;
+        animation: fadeIn 2s ease;
+    }
+    .placeholder img {
+        width: 150px;
+        opacity: 0.8;
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+</head>
+<body>
+
+<h1>🌤 Weather App</h1>
+
+<div class="search-box">
+    <input type="text" id="locationInput" placeholder="Type city name...">
+    <button onclick="getWeather()">Get Weather</button>
+</div>
+
+<div id="weatherResult" class="placeholder">
+    <img src="https://cdn-icons-png.flaticon.com/512/1163/1163624.png" alt="Weather Illustration">
+    <p>Enter a location to see the weather details</p>
+</div>
+
+<script>
+async function getWeather() {
+    const location = document.getElementById('locationInput').value.trim();
+    const resultDiv = document.getElementById('weatherResult');
+
+    if (!location) {
+        resultDiv.innerHTML = "<p style='color:yellow;'>⚠ Please enter a location!</p>";
+        return;
+    }
+
+    resultDiv.innerHTML = "<p>Loading...</p>";
+
+    try {
+        const response = await fetch(`http://api.weatherapi.com/v1/current.json?key=9cbbe8b5c6874d478d893639251208&q=${location}&aqi=yes`);
+        
+        if (!response.ok) throw new Error("Location not found");
+
+        const data = await response.json();
+        
+        resultDiv.innerHTML = `
+            <div class="weather-card">
+                <h2>${data.location.name}, ${data.location.country}</h2>
+                <img src="${data.current.condition.icon}" alt="${data.current.condition.text}">
+                <div class="temp">${data.current.temp_c}°C</div>
+                <p>${data.current.condition.text}</p>
+                <div class="details">
+                    <p>🌬 Wind: ${data.current.wind_kph} kph</p>
+                    <p>💧 Humidity: ${data.current.humidity}%</p>
+                    <p>🌡 Feels Like: ${data.current.feelslike_c}°C</p>
+                    <p>📅 Last Updated: ${data.current.last_updated}</p>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        resultDiv.innerHTML = `<p style="color: yellow;">❌ ${error.message}</p>`;
+    }
+}
+</script>
+
+</body>
+</html>
