@@ -182,7 +182,8 @@ async function getWeather() {
     resultDiv.innerHTML = '<div class="loader"></div>';
 
     try {
-        const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=9cbbe8b5c6874d478d893639251208&q=${location}&aqi=yes`);
+        // Replace YOUR_NEW_KEY with your actual working API key
+        const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=YOUR_NEW_KEY&q=${location}&aqi=yes`);
         
         if (!response.ok) throw new Error("Location not found");
 
@@ -203,6 +204,7 @@ async function getWeather() {
             </div>
         `;
     } catch (error) {
+        console.error('Fetch error:', error);
         resultDiv.innerHTML = `<p style="color: yellow;">❌ ${error.message}</p>`;
     }
 }
@@ -210,4 +212,5 @@ async function getWeather() {
 
 </body>
 </html>
+
 
